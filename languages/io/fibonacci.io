@@ -17,4 +17,4 @@ fibItr := method(number,
     initialList last
 )
 
-
+fibItr(1) println
