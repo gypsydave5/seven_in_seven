@@ -1,0 +1,3 @@
+TwoDList clone do(
+	_inner := list(list(nil, nil, nil);, list(nil, nil, "me");, list(nil, nil, nil););
+)
