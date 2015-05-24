@@ -8,7 +8,6 @@ Sequence color := method(color,
 )
 
 RandomNumberGame := Object clone
-RandomNumberGame clone := RandomNumberGame
 RandomNumberGame rules := method(
     "Guess a number between #{self lowerBound} and #{self upperBound}\n" interpolate
 )
@@ -17,9 +16,30 @@ RandomNumberGame start := method(lowerBound, upperBound,
     self lowerBound := lowerBound
     self upperBound := upperBound
     self randomNumber := Random value(lowerBound - 1, upperBound) ceil
-    self lastGuessDistance := nil
-    self currentGuess := nil
+    newSlot("lastGuessDistance")
+    newSlot("currentGuess")
+    newSlot("guessDistance")
+    newSlot("result")
     return self
+)
+
+RandomNumberGame hasWon := method(
+    guessDistance == 0)
+RandomNumberGame doWon = method(
+    lastGuessDistance = guessDistance
+    list(true, "You win!" color("green")))
+RandomNumberGame isWarmer := method(
+    lastGuessDistance and lastGuessDistance > guessDistance)
+RandomNumberGame warmer := method(
+    list(false, "Wrong, but warmer..." color("green")))
+RandomNumberGame isColder := method(
+    lastGuessDistance and lastGuessDistance < guessDistance)
+RandomNumberGame colderResult := method(
+    list(false, "Wrong, and colder..." color("red")))
+RandomNumberGame isFirstGuess := method(
+    lastGuessDistance not)
+RandomNumberGame firstGuess := method(
+    list(false, "Wrong...")
 )
 
 RandomNumberGame guess := method(guess,
@@ -27,20 +47,15 @@ RandomNumberGame guess := method(guess,
     currentGuess = guess asNumber
     if(currentGuess isNan, return list(false, "Not a number!"))
 
-    guessDistance := (currentGuess - randomNumber) abs
+    setGuessDistance((currentGuess - randomNumber) abs)
 
-    if(guessDistance == 0, return list(true, "You win!" color("green")))
-
-    if(lastGuessDistance,
-        if(lastGuessDistance > guessDistance,
-            result := list(false, "Wrong, but warmer..." color("green")),
-            result := list(false, "Wrong, and colder..." color("red"))
-        ),
-        result := list(false, "Wrong...")
-    )
+    if(hasWon, setResult(doWon))
+    if(isWarmer, setResult(warmerResult))
+    if(isColder, setResult(colderResult))
+    if(isFirstGuess, setResult(firstGuess))
 
     lastGuessDistance = guessDistance
-    return result
+    result
 )
 
 gameRunner := method(game,
