@@ -8,36 +8,57 @@ Sequence color := method(color,
 )
 
 RandomNumberGame := Object clone
+RandomNumberGame clone := RandomNumberGame
+RandomNumberGame rules := method(
+    "Guess a number between #{self lowerBound} and #{self upperBound}\n" interpolate
+)
 
 RandomNumberGame start := method(lowerBound, upperBound,
+    self lowerBound := lowerBound
+    self upperBound := upperBound
+    self randomNumber := Random value(lowerBound - 1, upperBound) ceil
+    self lastGuessDistance := nil
+    self currentGuess := nil
+    return self
+)
 
-    randomNumber := Random value(lowerBound - 1, upperBound) ceil
-    lastGuessDistance := nil
-    guess := nil
+RandomNumberGame guess := method(guess,
+
+    currentGuess = guess asNumber
+    if(currentGuess isNan, return list(false, "Not a number!"))
+
+    guessDistance := (currentGuess - randomNumber) abs
+
+    if(guessDistance == 0, return list(true, "You win!" color("green")))
+
+    if(lastGuessDistance,
+        if(lastGuessDistance > guessDistance,
+            result := list(false, "Wrong, but warmer..." color("green")),
+            result := list(false, "Wrong, and colder..." color("red"))
+        ),
+        result := list(false, "Wrong...")
+    )
+
+    lastGuessDistance = guessDistance
+    return result
+)
+
+gameRunner := method(game,
 
     "IO GUESSING GAME" println
     "----------------" println
     "Welcome to a guessing game" println
-    "Guess a number between #{lowerBound} and #{upperBound}" interpolate println
+    "The rules are:" print
+    game rules println
 
-    while(guess != randomNumber,
+    guessResult := list(false)
 
+    while(guessResult first not,
         "guess: " color("blue") print
-        guess = File standardInput readLine asNumber
-        "" println
-        if(guess isNan, "Not a number" println; return)
-        guessDistance := (guess - randomNumber) abs
-        if(guessDistance == 0, "Correct!\nYou win!" println; return)
-        if(lastGuessDistance,
-            if(lastGuessDistance > guessDistance,
-                "No, but warmer..." color("green") println,
-                "No, and you're colder" color("red") println
-            ),
-            "Nope" println
-        )
-        "Try again!" println
-        lastGuessDistance = guessDistance
+        input := File standardInput readLine asNumber
+        guessResult = game guess(input)
+        guessResult last println
     )
 )
 
-RandomNumberGame start(1, 100)
+gameRunner(RandomNumberGame start(1, 100))
